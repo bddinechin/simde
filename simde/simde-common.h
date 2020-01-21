@@ -28,6 +28,8 @@
 #include "check.h"
 #include "simde-arch.h"
 
+#include <string.h>
+
 #if \
   HEDLEY_HAS_ATTRIBUTE(aligned) || \
   HEDLEY_GCC_VERSION_CHECK(2,95,0) || \
@@ -61,6 +63,12 @@
     HEDLEY_ARM_VERSION_CHECK(4,1,0) || \
     HEDLEY_IBM_VERSION_CHECK(11,1,0)
 #  define SIMDE_ALIGN_OF(T) (__alignof__(T))
+#endif
+
+#if defined(SIMDE_ALIGN_OF)
+#  define SIMDE_ALIGN_AS(N, T) SIMDE_ALIGN(SIMDE_ALIGN_OF(T))
+#else
+#  define SIMDE_ALIGN_AS(N, T) SIMDE_ALIGN(N)
 #endif
 
 #define simde_assert_aligned(alignment, val) \
@@ -177,7 +185,7 @@
 #  define SIMDE_ENABLE_OPENMP
 #endif
 
-#if !defined(SIMDE_ENABLE_CILKPLUS) && defined(__cilk)
+#if !defined(SIMDE_ENABLE_CILKPLUS) && (defined(__cilk) || defined(HEDLEY_INTEL_VERSION))
 #  define SIMDE_ENABLE_CILKPLUS
 #endif
 
@@ -191,11 +199,6 @@
 #  define SIMDE__VECTORIZE_SAFELEN(l) HEDLEY_PRAGMA(simd vectorlength(l))
 #  define SIMDE__VECTORIZE_REDUCTION(r) HEDLEY_PRAGMA(simd reduction(r))
 #  define SIMDE__VECTORIZE_ALIGNED(a) HEDLEY_PRAGMA(simd aligned(a))
-#elif defined(__INTEL_COMPILER)
-#  define SIMDE__VECTORIZE _Pragma("simd")
-#  define SIMDE__VECTORIZE_SAFELEN(l) HEDLEY_PRAGMA(simd vectorlength(l))
-#  define SIMDE__VECTORIZE_REDUCTION(r) HEDLEY_PRAGMA(simd reduction(r))
-#  define SIMDE__VECTORIZE_ALIGNED(a)
 #elif defined(__clang__)
 #  define SIMDE__VECTORIZE _Pragma("clang loop vectorize(enable)")
 #  define SIMDE__VECTORIZE_SAFELEN(l) HEDLEY_PRAGMA(clang loop vectorize_width(l))
@@ -218,26 +221,14 @@
 #  define SIMDE__VECTORIZE_ALIGNED(a)
 #endif
 
-#if HEDLEY_GCC_HAS_ATTRIBUTE(unused,3,1,0)
-#  define SIMDE__UNUSED __attribute__((__unused__))
-#else
-#  define SIMDE__UNUSED
-#endif
-
-#if HEDLEY_GCC_HAS_ATTRIBUTE(artificial,4,3,0)
-#  define SIMDE__ARTIFICIAL __attribute__((__artificial__))
-#else
-#  define SIMDE__ARTIFICIAL
-#endif
-
 #define SIMDE__MASK_NZ(v, mask) (((v) & (mask)) | !((v) & (mask)))
 
-/* Intended for checking cover,,age, you should never use this in
+/* Intended for checking coverage, you should never use this in
    production. */
 #if defined(SIMDE_NO_INLINE)
-#  define SIMDE__FUNCTION_ATTRIBUTES HEDLEY_NEVER_INLINE SIMDE__UNUSED static
+#  define SIMDE__FUNCTION_ATTRIBUTES HEDLEY_NEVER_INLINE static
 #else
-#  define SIMDE__FUNCTION_ATTRIBUTES HEDLEY_INLINE SIMDE__ARTIFICIAL static
+#  define SIMDE__FUNCTION_ATTRIBUTES HEDLEY_ALWAYS_INLINE static
 #endif
 
 #if HEDLEY_HAS_WARNING("-Wused-but-marked-unused")
@@ -406,6 +397,20 @@ HEDLEY_STATIC_ASSERT(sizeof(simde_float64) == 8, "Unable to find 64-bit floating
 #  define SIMDE_DIAGNOSTIC_DISABLE_PSABI_
 #endif
 
+#if HEDLEY_INTEL_VERSION_CHECK(19,0,0)
+#  define SIMDE_DIAGNOSTIC_DISABLE_NO_EMMS_INSTRUCTION_ _Pragma("warning(disable:13200 13203)")
+#elif defined(HEDLEY_MSVC_VERSION)
+#  define SIMDE_DIAGNOSTIC_DISABLE_NO_EMMS_INSTRUCTION_ __pragma(warning(disable:4799))
+#else
+#  define SIMDE_DIAGNOSTIC_DISABLE_NO_EMMS_INSTRUCTION_
+#endif
+
+#if HEDLEY_INTEL_VERSION_CHECK(18,0,0)
+#  define SIMDE_DIAGNOSTIC_DISABLE_SIMD_PRAGMA_DEPRECATED_ _Pragma("warning(disable:3948)")
+#else
+#  define SIMDE_DIAGNOSTIC_DISABLE_SIMD_PRAGMA_DEPRECATED_
+#endif
+
 #if \
   HEDLEY_HAS_WARNING("-Wtautological-compare") || \
   HEDLEY_GCC_VERSION_CHECK(8,0,0)
@@ -432,6 +437,11 @@ HEDLEY_STATIC_ASSERT(sizeof(simde_float64) == 8, "Unable to find 64-bit floating
 #if !defined(SIMDE_TAUTOLOGICAL_COMPARE_)
 #  define SIMDE_TAUTOLOGICAL_COMPARE_(expr) (expr)
 #endif
+
+#define SIMDE_DISABLE_UNWANTED_DIAGNOSTICS \
+  SIMDE_DIAGNOSTIC_DISABLE_PSABI_ \
+  SIMDE_DIAGNOSTIC_DISABLE_NO_EMMS_INSTRUCTION_ \
+  SIMDE_DIAGNOSTIC_DISABLE_SIMD_PRAGMA_DEPRECATED_
 
 /* Sometimes we run into problems with specific versions of compilers
    which make the native versions unusable for us.  Often this is due
@@ -460,22 +470,16 @@ HEDLEY_STATIC_ASSERT(sizeof(simde_float64) == 8, "Unable to find 64-bit floating
 
 HEDLEY_ALWAYS_INLINE static
 simde_float32 simde_u32_to_f32(uint32_t val) {
-  union {
-    uint32_t u32;
-    simde_float32 f32;
-  } u;
-  u.u32 = val;
-  return u.f32;
+  simde_float32 r;
+  memcpy(&r, &val, sizeof(r));
+  return r;
 }
 
 HEDLEY_ALWAYS_INLINE static
 simde_float64 simde_u64_to_f64(uint64_t val) {
-  union {
-    uint64_t u64;
-    simde_float64 f64;
-  } u;
-  u.u64 = val;
-  return u.f64;
+  simde_float64 r;
+  memcpy(&r, &val, sizeof(r));
+  return r;
 }
 
 #define SIMDE_F32_ALL_SET   (simde_u32_to_f32(~UINT32_C(0)))
