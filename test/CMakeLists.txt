@@ -91,13 +91,13 @@ set(TEST_SOURCES_C
   x86/mmx.c
   x86/sse.c
   x86/sse2.c
-  x86/sse3.c
-  x86/ssse3.c
-  x86/sse4.1.c
-  x86/sse4.2.c
-  x86/avx.c
-  x86/avx2.c
-  x86/fma.c
+  # x86/sse3.c
+  # x86/ssse3.c
+  # x86/sse4.1.c
+  # x86/sse4.2.c
+  # x86/avx.c
+  # x86/avx2.c
+  # x86/fma.c
 
   arm/neon/vadd.c
   arm/neon/vdup_n.c
