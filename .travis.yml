@@ -43,13 +43,13 @@ jobs:
         packages:
         - clang-9
 
-  - name: "gcc-8 i686"
+  - name: "gcc-8 x86"
     arch: amd64
     compiler: gcc-8
     env:
     - C_COMPILER=gcc-8
     - CXX_COMPILER=g++-8
-    - ARCH_FLAGS="-march=i686"
+    - ARCH_FLAGS="-m32"
     addons:
       apt:
         packages:
