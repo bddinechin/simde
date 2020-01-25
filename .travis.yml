@@ -14,159 +14,159 @@ env:
 
 jobs:
   include:
-  - name: "gcc-9"
-    compiler: gcc-9
-    env:
-    - C_COMPILER=gcc-9
-    - CXX_COMPILER=g++-9
-    - COMPILER_FLAGS='-fsanitize=address,undefined'
-    addons:
-      apt:
-        sources:
-        - sourceline: "ppa:ubuntu-toolchain-r/test"
-          key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x60c317803a41ba51845e371a1e9377a2ba9ef27f
-        packages:
-        - gcc-9
-        - g++-9
+  # - name: "gcc-9"
+  #   compiler: gcc-9
+  #   env:
+  #   - C_COMPILER=gcc-9
+  #   - CXX_COMPILER=g++-9
+  #   - COMPILER_FLAGS='-fsanitize=address,undefined'
+  #   addons:
+  #     apt:
+  #       sources:
+  #       - sourceline: "ppa:ubuntu-toolchain-r/test"
+  #         key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x60c317803a41ba51845e371a1e9377a2ba9ef27f
+  #       packages:
+  #       - gcc-9
+  #       - g++-9
 
-  - name: "clang-9"
-    compiler: clang-9
-    env:
-    - C_COMPILER=clang-9
-    - CXX_COMPILER=clang++-9
-    - COMPILER_FLAGS='-fsanitize=address,undefined'
-    addons:
-      apt:
-        sources:
-        - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
-          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-        packages:
-        - clang-9
+  # - name: "clang-9"
+  #   compiler: clang-9
+  #   env:
+  #   - C_COMPILER=clang-9
+  #   - CXX_COMPILER=clang++-9
+  #   - COMPILER_FLAGS='-fsanitize=address,undefined'
+  #   addons:
+  #     apt:
+  #       sources:
+  #       - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+  #         key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+  #       packages:
+  #       - clang-9
 
-  - name: "gcc-8 x86"
-    arch: amd64
-    compiler: gcc-8
-    env:
-    - C_COMPILER=gcc-8
-    - CXX_COMPILER=g++-8
-    - ARCH_FLAGS="-m32"
-    addons:
-      apt:
-        packages:
-        - libc6:i386
-        - libc6-dev:i386
-        - gcc-8:i386
-        - g++-8:i386
-        - cpp-8:i386
-        - binutils:i386
-        - binutils-i686-linux-gnu:i386
+  # - name: "gcc-8 x86"
+  #   arch: amd64
+  #   compiler: gcc-8
+  #   env:
+  #   - C_COMPILER=gcc-8
+  #   - CXX_COMPILER=g++-8
+  #   - ARCH_FLAGS="-m32"
+  #   addons:
+  #     apt:
+  #       packages:
+  #       - libc6:i386
+  #       - libc6-dev:i386
+  #       - gcc-8:i386
+  #       - g++-8:i386
+  #       - cpp-8:i386
+  #       - binutils:i386
+  #       - binutils-i686-linux-gnu:i386
 
-  - name: "aarch64"
-    arch: arm64
+  # - name: "aarch64"
+  #   arch: arm64
 
-  - name: "ppc64le"
-    arch: ppc64le
-    env:
-    - ARCH_FLAGS="-mcpu=native"
-    addons:
-      apt:
-        packages:
-        - gcc
-        - g++
+  # - name: "ppc64le"
+  #   arch: ppc64le
+  #   env:
+  #   - ARCH_FLAGS="-mcpu=native"
+  #   addons:
+  #     apt:
+  #       packages:
+  #       - gcc
+  #       - g++
 
-  - name: "-DSIMDE_NO_SHUFFLE_VECTOR"
-    env:
-    - COMPILER_FLAGS=-DSIMDE_NO_SHUFFLE_VECTOR
+  # - name: "-DSIMDE_NO_SHUFFLE_VECTOR"
+  #   env:
+  #   - COMPILER_FLAGS=-DSIMDE_NO_SHUFFLE_VECTOR
 
-  - name: "pgcc"
-    env:
-    - C_COMPILER=pgcc
-    - CXX_COMPILER=pgc++
-    - ARCH_FLAGS="-m64"
-    - BUILD_CPP_TESTS=OFF
-    install:
-    - curl 'https://raw.githubusercontent.com/nemequ/pgi-travis/master/install-pgi.sh' | /bin/sh
+  # - name: "pgcc"
+  #   env:
+  #   - C_COMPILER=pgcc
+  #   - CXX_COMPILER=pgc++
+  #   - ARCH_FLAGS="-m64"
+  #   - BUILD_CPP_TESTS=OFF
+  #   install:
+  #   - curl 'https://raw.githubusercontent.com/nemequ/pgi-travis/master/install-pgi.sh' | /bin/sh
 
-  - name: "xlc"
-    arch: ppc64le
-    install:
-    - wget -q https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/ubuntu/public.gpg -O- | sudo apt-key add -
-    - echo "deb https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/ubuntu/ ${TRAVIS_DIST} main" >> /etc/apt/sources.list
-    - sudo apt-get update
-    - export XLC_VERSION="$(apt-cache search '^xlc\.[0-9]+\.[0-9]+\.[0-9]+$' | awk '{ print substr($1, 5) }')"
-    - sudo apt-get install "xlc.${XLC_VERSION}" "xlc-license-community.${XLC_VERSION}"
-    - sudo /opt/ibm/xlC/${XLC_VERSION}/bin/xlc_configure <<< 1 >/dev/null
-    env:
-    - ARCH_FLAGS=-qarch=auto
-    - C_COMPILER=xlc
-    - CXX_COMPILER=xlc++
+  # - name: "xlc"
+  #   arch: ppc64le
+  #   install:
+  #   - wget -q https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/ubuntu/public.gpg -O- | sudo apt-key add -
+  #   - echo "deb https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/ubuntu/ ${TRAVIS_DIST} main" >> /etc/apt/sources.list
+  #   - sudo apt-get update
+  #   - export XLC_VERSION="$(apt-cache search '^xlc\.[0-9]+\.[0-9]+\.[0-9]+$' | awk '{ print substr($1, 5) }')"
+  #   - sudo apt-get install "xlc.${XLC_VERSION}" "xlc-license-community.${XLC_VERSION}"
+  #   - sudo /opt/ibm/xlC/${XLC_VERSION}/bin/xlc_configure <<< 1 >/dev/null
+  #   env:
+  #   - ARCH_FLAGS=-qarch=auto
+  #   - C_COMPILER=xlc
+  #   - CXX_COMPILER=xlc++
 
-  - name: s390x
-    arch: s390x
+  # - name: s390x
+  #   arch: s390x
 
-  - name: osx
-    os: osx
+  # - name: osx
+  #   os: osx
 
   - name: windows
     os: windows
     env:
     - ARCH_FLAGS=""
 
-  - name: "gcc-7 amd64"
-    compiler: gcc
-    arch: amd64
+  # - name: "gcc-7 amd64"
+  #   compiler: gcc
+  #   arch: amd64
 
-  - name: "clang-7 amd64"
-    arch: amd64
-    compiler: clang
+  # - name: "clang-7 amd64"
+  #   arch: amd64
+  #   compiler: clang
 
-  - name: icc
-    compiler: icc
-    env:
-    - C_COMPILER=icc
-    - CXX_COMPILER=icpc
-    - BUILD_CPP_TESTS=OFF
-    install:
-    - source /opt/intel/inteloneapi/compiler/latest/env/vars.sh
-    addons:
-      apt:
-        sources:
-        - sourceline: 'deb https://apt.repos.intel.com/oneapi all main'
-          key_url: 'https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB'
-        packages:
-        - intel-oneapi-icc
+  # - name: icc
+  #   compiler: icc
+  #   env:
+  #   - C_COMPILER=icc
+  #   - CXX_COMPILER=icpc
+  #   - BUILD_CPP_TESTS=OFF
+  #   install:
+  #   - source /opt/intel/inteloneapi/compiler/latest/env/vars.sh
+  #   addons:
+  #     apt:
+  #       sources:
+  #       - sourceline: 'deb https://apt.repos.intel.com/oneapi all main'
+  #         key_url: 'https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB'
+  #       packages:
+  #       - intel-oneapi-icc
 
-  - name: "arm32"
-    arch: arm64
-    env:
-    - C_COMPILER=arm-linux-gnueabihf-gcc
-    - CXX_COMPILER=arm-linux-gnueabihf-g++
-    - ARCH_FLAGS="-march=armv8-a"
-    install:
-    - sudo dpkg --add-architecture armhf
-    - sudo apt-get update
-    - sudo apt-get -y install crossbuild-essential-armhf libc6:armhf libstdc++6:armhf
+  # - name: "arm32"
+  #   arch: arm64
+  #   env:
+  #   - C_COMPILER=arm-linux-gnueabihf-gcc
+  #   - CXX_COMPILER=arm-linux-gnueabihf-g++
+  #   - ARCH_FLAGS="-march=armv8-a"
+  #   install:
+  #   - sudo dpkg --add-architecture armhf
+  #   - sudo apt-get update
+  #   - sudo apt-get -y install crossbuild-essential-armhf libc6:armhf libstdc++6:armhf
 
-  - name: emscripten
-    compiler: emcc
-    env:
-    - ARCH_FLAGS=""
-    - C_COMPILER=emcc
-    - CXX_COMPILER=emcc
-    - CONFIGURE_WRAPPER=emconfigure
-    - BUILD_WRAPPER=emmake
-    - EXECUTABLE_EXTENSION=.js
-    - TEST_WRAPPER=node
-    addons:
-      apt:
-        packages:
-        - nodejs
-    install:
-    - |
-      git clone https://github.com/emscripten-core/emsdk.git
-      emsdk/emsdk install latest
-      emsdk/emsdk activate latest
-      source emsdk/emsdk_env.sh
+  # - name: emscripten
+  #   compiler: emcc
+  #   env:
+  #   - ARCH_FLAGS=""
+  #   - C_COMPILER=emcc
+  #   - CXX_COMPILER=emcc
+  #   - CONFIGURE_WRAPPER=emconfigure
+  #   - BUILD_WRAPPER=emmake
+  #   - EXECUTABLE_EXTENSION=.js
+  #   - TEST_WRAPPER=node
+  #   addons:
+  #     apt:
+  #       packages:
+  #       - nodejs
+  #   install:
+  #   - |
+  #     git clone https://github.com/emscripten-core/emsdk.git
+  #     emsdk/emsdk install latest
+  #     emsdk/emsdk activate latest
+  #     source emsdk/emsdk_env.sh
 
   allow_failures:
   - name: s390x
